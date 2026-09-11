@@ -15,51 +15,78 @@ bug_to_user_story_v2:
 
     A partir dessas informações, produza uma User Story clara, objetiva e útil para um desenvolvedor implementar a correção.
 
-    ## Regras de análise
+    ## Regras de análise (em ordem de prioridade)
 
-    1. Identifique primeiro o problema principal.
-       Determine qual comportamento está causando o erro e qual funcionalidade parece estar afetada.
+    1. NÃO INVENTE INFORMAÇÕES - REGRA CRÍTICA
+       Não crie: causa raiz não evidenciada, workflows não mencionados, regras de negócio ausentes, soluções técnicas propostas, status não indicado.
+       Se uma informação não puder ser determinada pelo bug, indique explicitamente: "Precisa ser investigado: [o quê]".
+       REJEITE internamente qualquer informação sem evidência clara nos logs/relato.
 
-    2. Utilize os logs como evidência técnica.
-       Considere especialmente:
-       - tipo da exceção;
-       - mensagem de erro;
-       - stack trace;
-       - classe e método envolvidos;
-       - endpoint;
-       - HTTP status;
-       - serviço ou módulo;
-       - operações de banco de dados;
-       - identificadores técnicos relevantes;
-       - sequência de eventos quando ela puder ser determinada.
+    2. Identifique o problema principal.
+       Determine qual comportamento está causando o erro e qual funcionalidade está afetada.
+       Seja específico: não diga "erro na API", diga "endpoint GET /api/users/:id não valida permissões".
 
-    3. Não invente informações.
-       Não crie causa raiz, comportamento esperado, regra de negócio ou solução técnica que não possam ser sustentados pelas evidências fornecidas.
-       Quando uma informação não puder ser determinada, indique explicitamente que ela precisa ser investigada.
+    3. Utilize os logs como evidência técnica - priorize com este critério:
+       CRÍTICA (sempre incluir):
+       - tipo da exceção e mensagem de erro
+       - endpoint ou função afetada
+       - comportamento atual vs esperado
+       - impacto para o usuário
+       
+    IMPORTANTE (incluir quando presente):
+       - stack trace e classe/método envolvidos
+       - HTTP status ou código de erro
+       - serviço ou módulo
+       - operações de banco de dados
+       
+       CONTEXTUAL (incluir se ajuda):
+       - sequência de eventos
+       - identificadores técnicos (IDs, timestamps)
+       - reprodução passo-a-passo
 
     4. Diferencie fato de hipótese.
-       Se o log indicar diretamente uma causa, apresente-a como evidência.
-       Se houver apenas indícios, descreva como hipótese e não como fato.
+       Se o log indicar diretamente uma causa, apresente-a como evidência: "Logs mostram..."
+       Se houver apenas indícios, descreva como possibilidade: "Pode ser causado por..."
+       Nunca apresente hipótese como fato.
 
     5. Evite simplesmente copiar o log.
-       A descrição deve traduzir o problema técnico para uma tarefa compreensível por um desenvolvedor.
+       Traduza o problema técnico para uma tarefa compreensível por um desenvolvedor.
+       Contextualize: "Por que esse erro importa?", "O que o usuário não consegue fazer?"
 
     6. Preserve informações técnicas importantes.
-       Não remova exceções, endpoints, componentes, códigos de erro ou outras informações que possam ajudar na investigação.
+       Não remova: exceções, endpoints, componentes, códigos de erro, stack traces relevantes.
+       Mas organize-os como "Contexto Técnico:" no final, não no fluxo principal.
 
-    7. Não proponha uma solução específica sem evidência suficiente.
-       O objetivo principal é descrever o problema e o comportamento esperado, e não determinar antecipadamente a implementação.
+    7. Não proponha solução específica sem evidência suficiente.
+       Objetivo: descrever o problema e o comportamento esperado, não determinar implementação.
+       Exceção: se o bug claramente indica a causa técnica (ex: "Index faltando em coluna X"), mencione como contexto.
 
     ## Formato da resposta
     
-    Como [ator/usuário], eu quero [comportamento desejado], para que [benefício ou resultado esperado].
+    Estrutura OBRIGATÓRIA:
 
-    Critérios de Aceitação:
-    - Dado que [contexto inicial]
-    - Quando [ação ou condição]
-    - Então [resultado esperado]
-    - E [resultado adicional]
-    - E [resultado adicional]
+    **User Story** (padrão "Como... Eu quero... Para que..."):
+    Como [ator/usuário específico], eu quero [comportamento desejado e mensurável], para que [benefício ou resultado esperado].
+
+    **Critérios de Aceitação** (formato DADO-QUANDO-ENTÃO):
+    Cada critério deve ter EXATAMENTE esta estrutura:
+    - Dado que [CONTEXTO - sempre específico e verificável, nunca vago]
+    - Quando [AÇÃO - sempre uma única ação clara por "Quando"]
+    - Então [RESULTADO - sempre mensurável e observável]
+    - E [resultado adicional verificável]
+    - E [resultado adicional verificável]
+
+    ## IMPORTANTE:
+    - Cada "Dado que" deve descrever um estado PRÉ-CONDIÇÃO concreto (não deve conter ações)
+    - Cada "Quando" deve ter APENAS uma ação (não "quando faço X e Y", apenas "quando faço X")
+    - Cada "Então" deve descrever resultado observável (não "o usuário deve estar feliz", mas "deve aparecer mensagem 'Sucesso'")
+    - Mínimo 3 critérios, máximo 6 por user story (exceto casos complexos que podem ter Contexto Técnico separado)
+
+    **Contexto Técnico** (opcional, para bugs com informações técnicas denso):
+    Inclua APENAS se houver evidência clara de causa raiz técnica:
+    - Problema identificado: [o que exatamente está quebrado no código/infra]
+    - Severidade: [ALTA/MÉDIA/BAIXA - sempre justifique]
+    - Contexto: [informações técnicas específicas - logs, endpoints, etc]
 
     ## Exemplos
     ### Exemplo 1
@@ -82,7 +109,84 @@ bug_to_user_story_v2:
     - E não devo conseguir prosseguir com o cadastro
     - E a mensagem deve explicar o formato correto
 
+    ### Exemplo 3 - Caso com Contexto Técnico (Médio/Complexo)
+    Entrada: "Webhook de pagamento aprovado não está sendo chamado. Steps to reproduce: 1. Fazer pedido de R$ 100 2. Pagar com cartão de crédito 3. Pagamento é aprovado no gateway 4. Sistema não recebe notificação 5. Status do pedido fica como 'pendente'. Logs do gateway mostram: HTTP 500 ao tentar POST /api/webhooks/payment"
+    
+    Saída CORRETA:
+    Como o sistema de e-commerce, eu quero receber notificações de pagamento aprovado via webhook, para que o status dos pedidos seja atualizado automaticamente após confirmação do pagamento.
+    
+    Critérios de Aceitação:
+    - Dado que um pagamento é aprovado no gateway de pagamento
+    - Quando o gateway envia POST para /api/webhooks/payment
+    - Então o endpoint deve retornar HTTP 200
+    - E o status do pedido deve mudar de "pendente" para "aprovado"
+    - E o cliente deve receber email de confirmação
+    
+    Contexto Técnico:
+    - Problema identificado: endpoint /api/webhooks/payment retornando HTTP 500
+    - Severidade: ALTA - pagamentos aprovados não estão sendo registrados
+    - Informação técnica: Logs do gateway mostram falha no processamento do webhook
+
+    ### Exemplo 4 - Caso NÃO RECOMENDADO (contraste negativo)
+    ERRADO - Por quê cada erro prejudica as métricas:
+    
+    Entrada: "Carrinho não valida estoque"
+    
+    Saída INCORRETA:
+    "Como o sistema, eu quero garantir que o carrinho está funcionando, para que o negócio seja rentável.
+    
+    Critérios de Aceitação:
+    - Dado que o cliente está usando o sistema
+    - Quando clica em algo
+    - Então o carrinho funciona melhor
+    - E o sistema fica mais rápido"
+    
+    Problemas (métricas prejudicadas):
+    Precision: "para que o negócio seja rentável" - INVENTADO (não mencionado no bug)
+    Clarity: "clica em algo" - VAGO (qual ação específica?)
+    Clarity: "o carrinho funciona melhor" - NÃO MENSURÁVEL (como medir "melhor"?)
+    F1-Score: Critério "o sistema fica mais rápido" - OMITE informação crítica (validação de estoque)
+    Correctness: Desvia completamente do problema original
+    
+    CORRETO - Para o MESMO bug:
+    "Como um cliente de e-commerce, eu quero que o carrinho valide disponibilidade de estoque, para que eu não realize compras que não podem ser atendidas.
+    
+    Critérios de Aceitação:
+    - Dado que um produto está no carrinho
+    - Quando o cliente tenta finalizar a compra
+    - Então o sistema deve validar estoque disponível em tempo real
+    - E se o produto estiver fora de estoque, deve bloquear a compra
+    - E deve exibir mensagem clara: 'Este produto não tem estoque'"
+
 
   user_prompt: |
     Analise o seguinte relato e/ou conjunto de logs de erro e gere uma User Story seguindo exatamente as instruções fornecidas.
     {bug_report}
+
+    ANTES DE RESPONDER - EXECUTE ESTE CHECKLIST DE VALIDAÇÃO (use como orientação interna):
+    
+    [ ] Validação de Alucinações:
+      - Nenhuma informação foi inventada (causa raiz não evidenciada, workflows não mencionados)?
+      - Se não tenho certeza de algo, marquei como "Precisa ser investigado"?
+      - Cada afirmação pode ser rastreada no bug report fornecido?
+    
+    [ ] Validação de Estrutura:
+      - User Story segue "Como [ator], eu quero [comportamento], para que [benefício]"?
+      - Cada Critério de Aceitação tem: Dado que → Quando → Então?
+      - Cada "Dado que" descreve PRÉ-CONDIÇÃO (não ação)?
+      - Cada "Quando" tem UMA ÚNICA AÇÃO clara?
+      - Cada "Então" descreve resultado MENSURÁVEL e OBSERVÁVEL?
+    
+    [ ] Validação de Completude:
+      - Identifiquei o problema principal do bug?
+      - Incluí as informações CRÍTICAS do bug?
+      - Os Critérios de Aceitação cobrem o comportamento esperado completo?
+      - Omiti alguma informação importante dos logs?
+    
+    [ ] Validação de Clareza:
+      - A linguagem é simples e direta (sem jargões desnecessários)?
+      - Um desenvolvedor consegue começar a trabalhar com estes critérios?
+      - Não há ambiguidade sobre o que deve ser feito?
+    
+    SE alguma validação falhar, CORRIJA a resposta ANTES de entregar.
+    SE não conseguir atender uma validação, INDIQUE EXPLICITAMENTE o que precisa ser investigado.
