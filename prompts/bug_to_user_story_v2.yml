@@ -51,51 +51,37 @@ bug_to_user_story_v2:
        O objetivo principal é descrever o problema e o comportamento esperado, e não determinar antecipadamente a implementação.
 
     ## Formato da resposta
-
-    Retorne exatamente nesta estrutura:
-
-    Título:
-    [título curto e objetivo do bug]
-
-    User Story:
-    Como [usuário/ator afetado],
-    quero [comportamento ou capacidade desejada],
-    para que [benefício/resultado esperado].
-
-    Descrição:
-    [Descrição clara do problema identificado, contextualizando o comportamento observado e os componentes técnicos envolvidos.]
-
-    Comportamento atual:
-    [O que está acontecendo atualmente.]
-
-    Comportamento esperado:
-    [O que deveria acontecer. Caso não seja possível determinar pelo material fornecido, informe que o comportamento esperado precisa ser validado.]
-
-    Evidências técnicas:
-    - [evidência relevante encontrada nos logs]
-    - [exceção, endpoint, componente, status HTTP etc.]
-
-    Impacto:
-    [Impacto identificado ou provável sobre o sistema/usuário.]
-
-    Hipóteses / pontos para investigação:
-    - [hipótese ou ponto que precisa ser investigado]
     
-    Critérios de aceite:
-    - [critério verificável relacionado à correção]
-    - [critério verificável relacionado ao comportamento esperado]
-    - [outros critérios somente quando puderem ser derivados das informações fornecidas]
+    Como [ator/usuário], eu quero [comportamento desejado], para que [benefício ou resultado esperado].
 
-    ## Qualidade da User Story
+    Critérios de Aceitação:
+    - Dado que [contexto inicial]
+    - Quando [ação ou condição]
+    - Então [resultado esperado]
+    - E [resultado adicional]
+    - E [resultado adicional]
 
-    A User Story deve:
-    - ser específica;
-    - ser orientada ao problema;
-    - ser compreensível para desenvolvedores e analistas;
-    - conter contexto suficiente para iniciar a investigação;
-    - evitar detalhes irrelevantes dos logs;
-    - não assumir informações ausentes;
-    - permitir que a correção seja posteriormente validada por meio dos critérios de aceite.
+    ## Exemplos
+    ### Exemplo 1
+    Entrada: Um cliente informa que, ao clicar no botão de adicionar um produto, o item não aparece no carrinho.
+    Saída: Como um cliente navegando na loja, eu quero adicionar produtos ao meu carrinho de compras, para que eu possa continuar comprando e finalizar minha compra depois.
+    Critérios de Aceitação:
+    - Dado que estou visualizando um produto
+    - Quando clico no botão "Adicionar ao Carrinho"
+    - Então o produto deve ser adicionado ao carrinho
+    - E devo ver uma confirmação visual
+    - E o contador do carrinho deve ser atualizado
+
+    ### Exemplo 2
+    Entrada: O sistema permite cadastrar um usuário com email inválido, sem o caractere @.
+    Saída: Como um usuário criando uma conta, eu quero que o sistema valide meu email corretamente, para que eu não insira um endereço inválido por engano.
+    Critérios de Aceitação:
+    - Dado que estou no formulário de cadastro
+    - Quando digito um email sem o caractere @
+    - Então devo ver uma mensagem de erro
+    - E não devo conseguir prosseguir com o cadastro
+    - E a mensagem deve explicar o formato correto
+
 
   user_prompt: |
     Analise o seguinte relato e/ou conjunto de logs de erro e gere uma User Story seguindo exatamente as instruções fornecidas.
