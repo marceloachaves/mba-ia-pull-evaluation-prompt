@@ -15,6 +15,24 @@ bug_to_user_story_v2:
 
     A partir dessas informações, produza uma User Story clara, objetiva e útil para um desenvolvedor implementar a correção.
 
+    ## Processo de Raciocínio
+    
+    Antes de escrever a resposta final, raciocine passo a passo internamente seguindo esta sequência:
+
+    Passo 1 - Extração de evidências: liste os fatos técnicos explícitos presentes no relato (exceções, mensagens de erro, endpoints, status HTTP, componentes, sequência de eventos).
+
+    Passo 2 - Identificação do problema central: com base nas evidências, determine qual funcionalidade está afetada e qual comportamento incorreto está ocorrendo.
+
+    Passo 3 - Separação fato vs hipótese: para cada possível causa, classifique como "evidência direta" (citada no relato) ou "hipótese não confirmada" (dedução sem confirmação explícita).
+
+    Passo 4 - Definição do ator e do valor: identifique quem é afetado pelo problema e qual o benefício de corrigi-lo.
+
+    Passo 5 - Construção dos critérios de aceitação: a partir do problema identificado no Passo 2, derive os critérios no formato Dado/Quando/Então cobrindo o comportamento esperado.
+
+    Passo 6 - Revisão final: confira se nenhuma informação foi inventada (Passo 1 e 3) e se o formato da resposta está correto.
+
+    IMPORTANTE: os passos acima são um raciocínio interno de preparação. A resposta final entregue ao usuário deve conter APENAS o resultado estruturado (User Story, Critérios de Aceitação e, se aplicável, Contexto Técnico) - não inclua os passos de raciocínio na saída.
+
     ## Regras de análise (em ordem de prioridade)
 
     1. NÃO INVENTE INFORMAÇÕES - REGRA CRÍTICA
@@ -26,38 +44,20 @@ bug_to_user_story_v2:
        Determine qual comportamento está causando o erro e qual funcionalidade está afetada.
        Seja específico: não diga "erro na API", diga "endpoint GET /api/users/:id não valida permissões".
 
-    3. Utilize os logs como evidência técnica - priorize com este critério:
-       CRÍTICA (sempre incluir):
-       - tipo da exceção e mensagem de erro
-       - endpoint ou função afetada
-       - comportamento atual vs esperado
-       - impacto para o usuário
-       
-    IMPORTANTE (incluir quando presente):
-       - stack trace e classe/método envolvidos
-       - HTTP status ou código de erro
-       - serviço ou módulo
-       - operações de banco de dados
-       
-       CONTEXTUAL (incluir se ajuda):
-       - sequência de eventos
-       - identificadores técnicos (IDs, timestamps)
-       - reprodução passo-a-passo
-
-    4. Diferencie fato de hipótese.
+    3. Diferencie fato de hipótese.
        Se o log indicar diretamente uma causa, apresente-a como evidência: "Logs mostram..."
        Se houver apenas indícios, descreva como possibilidade: "Pode ser causado por..."
        Nunca apresente hipótese como fato.
 
-    5. Evite simplesmente copiar o log.
+    4. Evite simplesmente copiar o log.
        Traduza o problema técnico para uma tarefa compreensível por um desenvolvedor.
        Contextualize: "Por que esse erro importa?", "O que o usuário não consegue fazer?"
 
-    6. Preserve informações técnicas importantes.
+    5. Preserve informações técnicas importantes.
        Não remova: exceções, endpoints, componentes, códigos de erro, stack traces relevantes.
        Mas organize-os como "Contexto Técnico:" no final, não no fluxo principal.
 
-    7. Não proponha solução específica sem evidência suficiente.
+    6. Não proponha solução específica sem evidência suficiente.
        Objetivo: descrever o problema e o comportamento esperado, não determinar implementação.
        Exceção: se o bug claramente indica a causa técnica (ex: "Index faltando em coluna X"), mencione como contexto.
 
@@ -141,13 +141,6 @@ bug_to_user_story_v2:
     - Então o carrinho funciona melhor
     - E o sistema fica mais rápido"
     
-    Problemas (métricas prejudicadas):
-    Precision: "para que o negócio seja rentável" - INVENTADO (não mencionado no bug)
-    Clarity: "clica em algo" - VAGO (qual ação específica?)
-    Clarity: "o carrinho funciona melhor" - NÃO MENSURÁVEL (como medir "melhor"?)
-    F1-Score: Critério "o sistema fica mais rápido" - OMITE informação crítica (validação de estoque)
-    Correctness: Desvia completamente do problema original
-    
     CORRETO - Para o MESMO bug:
     "Como um cliente de e-commerce, eu quero que o carrinho valide disponibilidade de estoque, para que eu não realize compras que não podem ser atendidas.
     
@@ -162,6 +155,8 @@ bug_to_user_story_v2:
   user_prompt: |
     Analise o seguinte relato e/ou conjunto de logs de erro e gere uma User Story seguindo exatamente as instruções fornecidas.
     {bug_report}
+
+    Siga o Processo de Raciocínio (Passos 1 a 6) definido nas instruções antes de escrever a resposta final. Não exiba os passos de raciocínio na saída - entregue apenas o resultado estruturado.
 
     ANTES DE RESPONDER - EXECUTE ESTE CHECKLIST DE VALIDAÇÃO (use como orientação interna):
     
