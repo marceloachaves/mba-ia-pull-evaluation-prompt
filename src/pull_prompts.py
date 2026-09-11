@@ -9,25 +9,44 @@ Este script:
 SIMPLIFICADO: Usa serialização nativa do LangChain para extrair prompts.
 """
 
-import os
 import sys
+import yaml
 from pathlib import Path
 from dotenv import load_dotenv
 from langchain import hub
+from langchain_core.prompts import ChatPromptTemplate
 from utils import save_yaml, check_env_vars, print_section_header
 
 load_dotenv()
 
+class LiteralString(str):
+    pass
+
+
+def literal_representer(dumper, data):
+    return dumper.represent_scalar(
+        "tag:yaml.org,2002:str",
+        data,
+        style="|"
+    )
+
+
+yaml.add_representer(LiteralString, literal_representer)
 
 def pull_prompts_from_langsmith():
-    #client = LangSmithClient()
-    prompts = hub.pull("leonanluppi/bug_to_user_story_v1")
-    promptToYaml = ""
-    for message in prompts.messages:
-        promptToYaml += message.prompt.template
-    
-    save_yaml(promptToYaml, Path("prompts/bug_to_user_story_v1.yml"))
+    prompt = hub.pull("leonanluppi/bug_to_user_story_v1")
+    print("tipo do prompt:", type(prompt))
+    save_yaml(promptToDict(prompt), Path("prompts/bug_to_user_story_v1.yml"))
 
+def promptToDict(prompt: ChatPromptTemplate) -> dict:
+    data = {
+        prompt.metadata["lc_hub_repo"]: {
+            "system_prompt": LiteralString(prompt.messages[0].prompt.template),
+            "user_prompt": prompt.messages[1].prompt.template
+        }
+    }
+    
+    return data
 
 def main():
     """Função principal"""
