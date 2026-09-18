@@ -304,3 +304,175 @@ C) Seção "Como Executar":
 - Não altere os datasets de avaliação - apenas os prompts em prompts/bug_to_user_story_v2.yml
 - Itere, itere, itere - é normal precisar de 3-5 iterações para atingir 0.8 em todas as métricas
 - Documente seu processo - a jornada de otimização é tão importante quanto o resultado final
+
+---  
+
+## A) Seção "Técnicas Aplicadas (Fase 2)":
+
+A própria exigência do desafio está documentada em README.md: era obrigatório usar Few-shot Learning e pelo menos uma técnica adicional. O prompt final em bug_to_user_story_v2.yml implementa isso de forma explícita.
+
+### 1) Few-shot Learning
+- O arquivo final contém vários exemplos de entrada/saída, como:
+  - “Exemplo 1”
+  - “Exemplo 2”
+  - “Exemplo 3”
+  - “Exemplo 7”
+  - “Exemplo 9”
+- Isso ensina o modelo a seguir o formato esperado e a transformar bugs em User Stories com qualidade.
+
+Por que foi usado:
+- Para reduzir ambiguidades.
+- Para fixar estrutura, nível de detalhe e linguagem esperada.
+- Para melhorar consistência em casos repetitivos.
+
+### 2) Role Prompting
+- O prompt define a persona:
+  - “Você é um analista de software especializado em análise de incidentes...”
+- Também define responsabilidade e domínio.
+
+Por que foi usado:
+- A persona orienta a resposta para um contexto técnico e de desenvolvimento.
+- Reduz respostas genéricas e melhora o nível de precisão.
+
+### 3) Chain of Thought / Skeleton of Thought
+- O prompt usa uma estrutura interna em etapas:
+  - Passo 1: Extração de evidências
+  - Passo 2: Identificação do problema
+  - Passo 3: Fato vs hipótese
+  - Passo 4: Ator e valor
+  - Passo 5: Matriz de cobertura
+  - Passo 6: Critérios de aceitação
+  - Passo 7: Revisão de recall
+  - Passo 8: Revisão de precisão e formato
+- Isso é um típico “skeleton of thought” + raciocínio em etapas.
+
+Por que foi usado:
+- Para fazer o modelo separar observações, inferências e hipóteses.
+- Para evitar que ele “copie o log” sem transformar em tarefa útil.
+
+### 4) Output schema / structured prompting
+- O prompt obriga a resposta em:
+  - User Story
+  - Critérios de Aceitação
+  - Contexto Técnico
+  - (quando aplicável) Critérios de Prevenção, Técnicos, Acessibilidade
+
+Por que foi usado:
+- Facilita avaliação automática.
+- Garante que a resposta seja útil para desenvolvedores.
+- Reduz respostas livres demais.
+
+### 5) Guardrails e regras de inferência controlada
+- Há regras explícitas sobre:
+  - preservar fatos;
+  - não transformar hipótese em fato;
+  - não inventar valores/fluxos;
+  - separar evidência direta de inferência;
+  - manter somente o que está sustentado no relato.
+
+Por que foi usado:
+- Esse foi um ajuste crítico para qualidade e correção.
+- O prompt anterior era simples demais e tendia a inferir sem base.
+
+--- 
+### Ajustes pontuais feitos e por que foram ajustados
+
+### Ajuste 1: introdução de persona e contexto
+No prompt final, a primeira seção já inicia com:
+- “Você é um analista de software especializado...”
+- “Sua tarefa é analisar evidências de um bug...”
+
+Por que:
+- Sem isso, o modelo tende a responder como um assistente genérico e não como um analista de incidentes.
+- A persona reduz derivações sem foco.
+
+### Ajuste 2: exigência de passos de raciocínio interno
+O arquivo introduz “Processo de Raciocínio” com oito passos.
+
+Por que:
+- A revisão do problema mostrou que o modelo precisava de estrutura para:
+  - extrair fatos;
+  - diferenciar evidência e hipótese;
+  - mapear impacto;
+  - converter o bug em tarefa técnica útil.
+- Esse ajuste foi essencial para melhorar “correctness” e “precision”.
+
+### Ajuste 3: divisão entre fato e hipótese
+A seção “Regras de análise” e “Separação fato vs hipótese” entra em detalhes.
+
+Por que:
+- Era um problema recorrente: o modelo “explicava como se soubesse” a causa do bug sem confirmação.
+- Isso gerava respostas plausíveis, mas não confiáveis.
+- A correção foi impor “evidência direta” vs “hipótese não confirmada”.
+
+### Ajuste 4: padronização da saída
+A seção “Formato da resposta” define a estrutura obrigatória.
+
+Por que:
+- Sem isso, o modelo poderia responder em texto livre, pouco comparável.
+- A saída padronizada facilita:
+  - testes,
+  - avaliação,
+  - uso em pipelines,
+  - revisão humana.
+
+### Ajuste 5: exemplos de entrada/saída detalhados
+O final do prompt contém vários exemplos, mais do que o necessário.
+
+Por que:
+- Foi necessário ensinar o padrão de resposta por demonstração.
+- Exemplos resolvem ambiguidades de:
+  - linguagem,
+  - estrutura,
+  - tipo de informação relevante,
+  - estilo de critério DADO/QUANDO/ENTÃO.
+
+### Ajuste 6: foco em recall e cobertura
+A seção “Revisão de recall” exige que cada fato do relato apareça em algum critério, contexto ou cálculo.
+
+Por que:
+- O problema identificado na avaliação do prompt que estava com baixo recall, mostra que o modelo estava omitindo dados importantes.
+- Com isso, a resposta ficou mais completa.
+
+### Ajuste 7: revisão de precisão e remoção de hipóteses
+A seção “Revisão de precisão e formato” exige remover inferências sem suporte.
+
+Por que:
+- Isso corrige um erro clássico de LLM:
+  - responder “bem” mas com afirmações inventadas.
+- A ideia é preservar a fidelidade ao incidente.
+
+### Ajuste 8: contexto técnico opcional e detalhado
+A seção “Contexto Técnico” foi adicionada para manter dados relevantes sem poluir a User Story principal.
+
+Por que:
+- O prompt precisa preservar logs, endpoints, status, mensagens e impacto sem repetir tudo no corpo principal.
+- Isso melhora o valor para a equipe técnica.
+
+
+## C) Seção "Como Executar":
+
+### VirtualEnv para Python
+
+Crie e ative um ambiente virtual antes de instalar dependências:
+
+```
+python3 -m venv venv
+source venv/bin/activate  # No Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Como executar
+
+1. Fazer push dos prompts otimizados
+
+```
+python src/push_prompts.py
+```
+
+2. Executar avaliação
+
+```
+python src/evaluate.py
+```  
+---
