@@ -450,6 +450,57 @@ Por que:
 - Isso melhora o valor para a equipe técnica.
 
 
+
+## B) Seção "Resultados Finais":
+
+- Screenshot do dashboard em `resultados/screenshot/dashboard`
+- Screenshots das avaliações com as notas mínimas de 0.8 atingidas em `resultados/screenshot/avaliacao_v2`
+- Tabela comparativa: prompts ruins (v1) vs prompts otimizados (v2)
+
+
+# Resultados Finais
+
+## Tabela Comparativa: Prompt v1 vs Prompt v2
+
+| Métrica | Prompt v1 | Prompt v2 | Melhoria | Status v1 | Status v2 |
+|---------|-----------|-----------|----------|-----------|-----------|
+| **Helpfulness** | 0.89 | 0.91 | +0.02 | ✓ | ✓ |
+| **Correctness** | 0.84 | 0.86 | +0.02 | ✓ | ✓ |
+| **F1-Score** | 0.79 | 0.83 | +0.04 | ✗ | ✓ |
+| **Clarity** | 0.89 | 0.92 | +0.03 | ✓ | ✓ |
+| **Precision** | 0.89 | 0.90 | +0.01 | ✓ | ✓ |
+| **MÉDIA GERAL** | 0.8566 | 0.8845 | +0.0279 | ✗ Reprovado | ✓ Aprovado |
+
+---
+
+## Análise dos Resultados
+
+### Prompt v1 (Inicial)
+
+- **Status**: ❌ **REPROVADO**
+- **Problema Principal**: F1-Score em 0.79 (abaixo de 0.8)
+- **Pontos Fortes**: 
+  - Clarity: 0.89
+  - Precision: 0.89
+- **Pontos Fracos**: 
+  - F1-Score baixo indicava falta de cobertura e recall
+
+### Prompt v2 (Otimizado)
+
+- **Status**: ✅ **APROVADO**
+- **Todas as Métricas >= 0.8**: Sim
+- **Maior Melhoria**: F1-Score (+0.04 pontos) — resultado direto das técnicas aplicadas
+- **Melhoria Secundária**: Clarity (+0.03) — benefício da estrutura mais clara
+
+### Impacto das Técnicas Aplicadas
+
+A melhoria em **F1-Score** (+0.04) reflete o sucesso das técnicas implementadas:
+
+1. **Chain of Thought (8 passos)** → Melhorou cobertura de fatos (recall)
+2. **Guardrails e regras de fidelidade** → Melhorou precisão das respostas
+3. **Few-shot Learning (10 exemplos)** → Fixou padrão esperado
+4. **Estrutura obrigatória (User Story + Critérios)** → Garantiu completude
+
 ## C) Seção "Como Executar":
 
 ### VirtualEnv para Python
@@ -475,4 +526,13 @@ python src/push_prompts.py
 ```
 python src/evaluate.py
 ```  
----
+3. Executar testes
+
+```
+pytest tests/test_prompts.py
+```
+
+## 3. Evidências no LangSmith:
+
+- Screenshots do dashboard do LangSmith em `resultados/screenshot/dashboard`
+- Tracing em `resultados/screenshot/tracing`
