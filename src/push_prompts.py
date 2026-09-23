@@ -37,13 +37,13 @@ def push_prompt_to_langsmith(prompt_name: str, prompt_data: dict) -> bool:
             ("system", prompt_data[prompt_name]["system_prompt"]),
             ("human", prompt_data[prompt_name]["user_prompt"])
         ])
-
+        
         hub.push(
             "marceloac/" + prompt_name,
             object=prompt,
             new_repo_is_public=True,
-            tags=prompt_data.get(prompt_name, {}).get('tags'),
-            new_repo_description=prompt_data.get(prompt_name, {}).get('description')
+            tags=prompt_data[prompt_name]["tags"],
+            new_repo_description=prompt_data[prompt_name]["description"]
         )
         return True
     except Exception as e:
